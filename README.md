@@ -57,3 +57,35 @@ The discriminator in the pix2pix cGAN is a convolutional PatchGAN classifier—i
 6. The input image and the generated image (the output of the generator), which it should classify as fake.
 7. Use tf.concat([inp, tar], axis=-1) to concatenate these 2 inputs together.
 
+_**7) Define the discriminator loss**_
+
+1. The discriminator_loss function takes 2 inputs: real images and generated images.
+2. Real_loss is a sigmoid cross-entropy loss of the real images and an array of ones(since these are the real images).
+3. Generated_loss is a sigmoid cross-entropy loss of the generated images and an array of zeros (since these are fake images).
+4. The total_loss is the sum of real_loss and generated_loss.
+
+_**8) Training**_
+
+1. For each example input generates an output.
+2. The discriminator receives the input_image and the generated image as the first input. The second input is the input_image and the target_image.
+3. Next, calculate the generator and the discriminator loss.
+4. Then, calculate the gradients of loss with respect to both the generator and the discriminator variables(inputs) and apply those to the optimizer.
+5. Finally, log the losses to TensorBoard.
+
+The actual training loop. Since this tutorial can run of more than one dataset, and the datasets vary greatly in size the training loop is setup to work in steps instead of epochs.
+
+1. Iterates over the number of steps.
+2. Every 10 steps print a dot (.).
+3. Every 1k steps: clear the display and run generate_images to show the progress.
+4. Every 5k steps: save a checkpoint.
+
+Interpreting the logs is more subtle when training a GAN (or a cGAN like pix2pix) compared to a simple classification or regression model. Things to look for:
+
+1. Check that neither the generator nor the discriminator model has "won". If either the gen_gan_loss or the disc_loss gets very low, it's an indicator that this model is dominating the other, and you are not successfully training the combined model.
+2. The value log(2) = 0.69 is a good reference point for these losses, as it indicates a perplexity of 2 - the discriminator is, on average, equally uncertain about the two options.
+3. For the disc_loss, a value below 0.69 means the discriminator is doing better than random on the combined set of real and generated images.
+4. For the gen_gan_loss, a value below 0.69 means the generator is doing better than random at fooling the discriminator.
+5. As training progresses, the gen_l1_loss should go down.
+
+
+
